@@ -1,0 +1,40 @@
+Database: hw2_9de985beb3ad
+
+Get user
+{'_id': 'usr_501', 'email': 'farzana@homework.test', 'name': 'Farzana'}
+
+Get document metadata
+{'_id': 'doc_1001',
+ 'created_at': datetime.datetime(2026, 11, 6, 9, 57, 6, 799000, tzinfo=FixedOffset(datetime.timedelta(0), 'UTC')),
+ 'title': 'Project notes'}
+
+Collaborators after adding Farzana and Ali
+{'collaborators': ['usr_501', 'usr_502']}
+
+Get edit_002
+{'content': 'Review the data sources.\n',
+ 'edit_id': 'edit_002',
+ 'email': 'ali@homework.test',
+ 'name': 'Ali',
+ 'saved_at': datetime.datetime(2026, 11, 6, 9, 59, 6, 799000, tzinfo=FixedOffset(datetime.timedelta(0), 'UTC')),
+ 'user_id': 'usr_502'}
+
+Collaborators after removing Ali
+{'collaborators': ['usr_501']}
+Ali's new edit accepted: False
+
+Get all edits in saved_at order
+[{'content': 'Define the project goals.\n',
+  'edit_id': 'edit_001',
+  'email': 'farzana@homework.test',
+  'name': 'Farzana',
+  'saved_at': datetime.datetime(2026, 11, 6, 9, 58, 6, 799000, tzinfo=FixedOffset(datetime.timedelta(0), 'UTC')),
+  'user_id': 'usr_501'},
+ {'content': 'Review the data sources.\n',
+  'edit_id': 'edit_002',
+  'email': 'ali@homework.test',
+  'name': 'Ali',
+  'saved_at': datetime.datetime(2026, 11, 6, 9, 59, 6, 799000, tzinfo=FixedOffset(datetime.timedelta(0), 'UTC')),
+  'user_id': 'usr_502'}]
+
+All demo checks passed.

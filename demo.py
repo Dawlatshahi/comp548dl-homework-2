@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from pymongo import MongoClient
 
-
+# save and edit only if user is an collaborator 
 def save_edit(users, documents, doc_id, user_id, edit_id, content, saved_at):
     author = users.find_one({"_id": user_id}, {"name": 1, "email": 1})
     if author is None:
@@ -21,6 +21,7 @@ def save_edit(users, documents, doc_id, user_id, edit_id, content, saved_at):
         "name": author["name"],
         "email": author["email"],
     }
+    # check the collaborator status and ensure no duplicate edit_id
     result = documents.update_one(
         {
             "_id": doc_id,
@@ -31,7 +32,7 @@ def save_edit(users, documents, doc_id, user_id, edit_id, content, saved_at):
     )
     return result.modified_count == 1
 
-
+# retreive the single edit by its edit_id
 def get_edit(documents, doc_id, edit_id):
     result = documents.find_one(
         {"_id": doc_id},
@@ -40,7 +41,7 @@ def get_edit(documents, doc_id, edit_id):
     edits = result.get("edits", []) if result else []
     return edits[0] if edits else None
 
-
+# Fetch the entire edit history and sort by saved_at and edit_id
 def get_history(documents, doc_id):
     result = documents.find_one({"_id": doc_id}, {"_id": 0, "edits": 1})
     if result is None:
@@ -53,12 +54,14 @@ def main():
     with MongoClient(uri, serverSelectionTimeoutMS=5000, tz_aware=True) as client:
         client.admin.command("ping")
        
+       # Create a unique database name for this demo run
         db = client["hw2_" + uuid4().hex[:12]]
         print("Database:", db.name)
         users, documents = db.users, db.documents
         doc_id, farzana, ali = "doc_1001", "usr_501", "usr_502"
         now = datetime.now(timezone.utc)
 
+        #Insert test users
         users.insert_many([
             {"_id": farzana, "name": "Farzana", "email": "farzana@homework.test"},
             {"_id": ali, "name": "Ali", "email": "ali@homework.test"},
@@ -66,6 +69,7 @@ def main():
         print("\nGet user")
         pprint(users.find_one({"_id": farzana}))
 
+        # Insert empty document
         documents.insert_one({
             "_id": doc_id, "title": "Project notes", "created_at": now,
             "collaborators": [], "edits": [],
@@ -73,13 +77,14 @@ def main():
         print("\nGet document metadata")
         pprint(documents.find_one({"_id": doc_id}, {"title": 1, "created_at": 1}))
 
+        # Add collaborators to the document
         documents.update_one(
             {"_id": doc_id}, {"$addToSet": {"collaborators": {"$each": [farzana, ali]}}}
         )
         print("\nCollaborators after adding Farzana and Ali")
         pprint(documents.find_one({"_id": doc_id}, {"_id": 0, "collaborators": 1}))
 
-
+        #save edits
         ali_saved = save_edit(users, documents, doc_id, ali, "edit_002",
                               "Review the data sources.\n", now + timedelta(minutes=2))
         farzana_saved = save_edit(users, documents, doc_id, farzana, "edit_001",
@@ -91,6 +96,7 @@ def main():
         assert edit and edit["email"] == "ali@homework.test"
         pprint(edit)
 
+        # Remove Ali and verify that his edit is rejected
         documents.update_one({"_id": doc_id}, {"$pull": {"collaborators": ali}})
         print("\nCollaborators after removing Ali")
         membership = documents.find_one({"_id": doc_id}, {"_id": 0, "collaborators": 1})
@@ -102,6 +108,7 @@ def main():
         assert not accepted
         print("Ali's new edit accepted:", accepted)
 
+        # Get the entire edit history and verify the order
         print("\nGet all edits in saved_at order")
         history = get_history(documents, doc_id)
         assert [edit["edit_id"] for edit in history] == ["edit_001", "edit_002"]

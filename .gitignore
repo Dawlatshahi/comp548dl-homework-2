@@ -19,3 +19,7 @@ env/
 # Editor settings
 .vscode/
 .idea/
+
+# Apple Pages
+*.pages/
+*.pages

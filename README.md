@@ -1,4 +1,5 @@
 # COMP-548DL Homework 2 Exercise 4
+**Student Name and ID:** Farzana Asadi (U254N2745)
 
 This demo implements the MongoDB model described in Exercise 3. Open Docker Desktop, then start the local server.
 
